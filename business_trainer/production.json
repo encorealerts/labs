@@ -2,7 +2,7 @@
   "db": {
     "host": "encoreanalytics-production.crvnjsh7wamc.us-east-1.rds.amazonaws.com",
     "user": "encoreanalytics",
-    "pw": "Shanghai8",
+    "pw": "Shanghai8.",
     "database": "encoreanalytics_staging"
   }
 }
