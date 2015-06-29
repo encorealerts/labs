@@ -1,0 +1,8 @@
+{
+  "db": {
+    "host": "localhost",
+    "user": "root",
+    "pw": "",
+    "database": "encore_analytics_development"
+  }
+}

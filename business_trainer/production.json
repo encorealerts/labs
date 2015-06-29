@@ -1,0 +1,8 @@
+{
+  "db": {
+    "host": "encoreanalytics-production.crvnjsh7wamc.us-east-1.rds.amazonaws.com",
+    "user": "encore_analytics",
+    "pw": "Shanghai8.",
+    "database": "encore_analytics_production"
+  }
+}
