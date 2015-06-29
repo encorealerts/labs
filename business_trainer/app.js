@@ -33,7 +33,7 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-var connection = mysql.createConnection({ host: config.db.host, user: config.db.user, password: config.db.pw, database: config.db.host.database });
+var connection = mysql.createConnection({ host: config.db.host, user: config.db.user, password: config.db.pw, database: config.db.database });
 connection.connect(function (error) {
   if (error) { throw error; }
   console.log('MySQL Connected');
