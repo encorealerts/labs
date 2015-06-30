@@ -47,14 +47,16 @@ var queryArr = [];
 queryArr.push('SELECT *');
 queryArr.push('FROM activities, (');
 queryArr.push('    SELECT id AS sid');
-queryArr.push('    FROM activities');
+queryArr.push('    FROM activities AS acs');
 queryArr.push('    ORDER BY RAND( )');
 queryArr.push('    LIMIT :limit');
 queryArr.push(' ) tmp');
-queryArr.push('WHERE activities.id = tmp.sid;');
+queryArr.push('WHERE activities.id = tmp.sid');
+queryArr.push('  AND activities.in_reply_to_native_id is NULL;');
 
 app.get('/alerts', function (req, res) {
-  var limit = req.query.limit, query = queryArr.join('\r').replace(':limit', limit);
+  var limit = (parseInt(req.query.limit || 10) * 1.1).toFixed(0), 
+    query = queryArr.join('\r').replace(':limit', limit);
   connection.query(query, function (err, rows, fields) {
     if (err) throw err;
     res.json({activities: rows})

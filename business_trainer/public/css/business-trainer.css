@@ -15,9 +15,23 @@ body {
   -webkit-appearance: none;
   appearance: none;
 }
-button::-moz-focus-inner {
-  border: 0;
+button::-moz-focus-inner {border: 0;}
+/* removes dashed outline from selects*/
+select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #646464;  /* your normal text color here */
 }
+select:-moz-focusring * {
+  color: #646464;
+  text-shadow: none;  /* your normal text color here */
+}
+/* clear fix hack*/
+.group:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 a,h1,h2,h3,h4,h5,h6,p,
 input,select,textarea,ul,li{
   margin:0;
@@ -123,25 +137,8 @@ h2 {padding-bottom: 12px;}
   position: relative;
   box-shadow:2px 2px 4px rgba(0,0,0,.3);
 }
-#tweet-placeholder:after{
-  content: '';
-  position: absolute;
-  top:0;
-  left: 0;
-  width: 100%;
-  height: 10px;
-  background: -moz-linear-gradient(top, #fff 0%, #fff 50%, rgba(255,255,255,0) 100%);
-  background: -webkit-linear-gradient(top, #fff 0%, #fff 50%, rgba(255,255,255,0) 100%);
-}
-#tweet-placeholder:before{
-  content: '';
-  position: absolute;
-  bottom:0;
-  left: 0;
-  width: 100%;
-  height: 10px;
-  background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 50%, #fff 100%);
-  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%, #fff 50%, #fff 100%);
+#tweet-placeholder > iframe {
+  transition: opacity 1s;
 }
 #actions-wrapper button {
   border:none;
@@ -167,3 +164,35 @@ h2 {padding-bottom: 12px;}
 #actions-wrapper button.blue{ background-color: #1e88e5; background-image: url('/images/up.svg'); }
 #actions-wrapper button.green{ background-color: #4caf50; background-image: url('/images/left.svg'); }
 #actions-wrapper button.grey{ background-color: #6b6b6b; background-image: url('/images/right.svg'); }
+
+
+
+.loading {
+  position: relative;
+}
+
+@keyframes rot {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(1080deg);
+  }
+}
+
+.loading::after {
+  content:'';
+  display: block;
+  font-size: 12px;
+  width: 42px;
+  height: 42px;
+  position: absolute;
+  background-color: transparent;
+  top:calc(50% - 21px);
+  left:calc(50% - 21px);
+  border-width: 9px;
+  border-color: #aaa #bbb #ccc #ddd;
+  border-style: solid;
+  border-radius: 50%;
+  animation: rot 2s ease-in-out infinite;
+}

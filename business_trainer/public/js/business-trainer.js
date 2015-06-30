@@ -1,7 +1,7 @@
 $(function () {
 
   var activities = [], 
-    LIMIT = 10, 
+    LIMIT = 100, 
     NEW_REQUEST_THRESHOLD = (LIMIT / 10) * 2,
     blocked = false;
     Actions = {
@@ -71,13 +71,20 @@ $(function () {
     var frame = $('<iframe></iframe>').attr({
       src: 'http://twitframe.com/show?url=' + encodeURIComponent(activity.link.replace('https://','http://')),
       width: 500,
-      height: 500,
+      height: 300,
       frameBorder: 0,
       seamless: true,
-      id: 'tweet-frame'
+      style: 'opacity:0',
+      id: 'tweet_' + activity.native_id
     });
 
-    $('#tweet-placeholder').empty().append(frame).attr('data-native-id', activity.native_id);
+    frame.on('load', function(e) {
+      console.log("Load")
+      console.log(this)
+      this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
+    });
+
+    $('#tweet-placeholder').empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
   }
 
   function postAction(action) {
@@ -122,4 +129,23 @@ $(function () {
 
   embedActivity();
 
+  /* find all iframes with ids starting with "tweet_" */
+  // $('#tweet-placeholder').on('load', "iframe[id^='tweet_']", function() {
+  //   console.log('Load')
+  //   this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
+  // });
+
+  /* listen for the return message once the tweet has been loaded */
+  $(window).bind("message", function(e) {
+    var oe = e.originalEvent;
+    console.log('Received', oe.origin, oe.data)
+    if (oe.origin != "http://twitframe.com" && oe.origin != "https://twitframe.com") {
+      return;
+    }
+    
+    if (oe.data.height && oe.data.element.match(/^tweet_/)) {
+      $("#" + oe.data.element).css({height: (parseInt(oe.data.height) + 12) + "px", opacity: 1})
+      $('#tweet-placeholder').removeClass('loading');
+    }
+  });
 });
