@@ -7,16 +7,20 @@ $(function () {
     Actions = {
       BUSINESS: 'business',
       BOT: 'bot',
-      PERSONAL: 'personal'
+      PERSONAL: 'personal',
+      SPAM: 'spam'
     },
     possibleActions = Object.keys(Actions).map(function (k) {return Actions[k]}),
     Keys = {
       LEFT: 37,
       UP: 38,
       RIGHT: 39,
-      BOTTOM: 40
+      BOTTOM: 40,
+      S: [115, 83]
     },
-    possibleKeys = Object.keys(Keys).map(function (k) {return Keys[k]});
+    possibleKeys = Object.keys(Keys).map(function (k) {return Keys[k] }).reduce(function(a, b) {
+      return a.concat ? a.concat(b) : b;
+    }, []);
 
   function block() {
     $('#blocker').show();
@@ -114,7 +118,7 @@ $(function () {
   });
 
   $(document).on('keypress', function (e) {
-    var code = e.keyCode;
+    var code = e.keyCode > 0 ? e.keyCode : e.which;
     if (blocked || possibleKeys.indexOf(code) === -1) {
       return;
     }
@@ -123,22 +127,17 @@ $(function () {
       case Keys.LEFT: postAction(Actions.PERSONAL); break;
       case Keys.UP: postAction(Actions.BUSINESS); break;
       case Keys.BOTTOM: postAction(Actions.BOT); break;
+      case Keys.S[0]: 
+      case Keys.S[1]: postAction(Actions.SPAM); break;
     }
     embedActivity();
   });
 
   embedActivity();
 
-  /* find all iframes with ids starting with "tweet_" */
-  // $('#tweet-placeholder').on('load', "iframe[id^='tweet_']", function() {
-  //   console.log('Load')
-  //   this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
-  // });
-
   /* listen for the return message once the tweet has been loaded */
   $(window).bind("message", function(e) {
     var oe = e.originalEvent;
-    console.log('Received', oe.origin, oe.data)
     if (oe.origin != "http://twitframe.com" && oe.origin != "https://twitframe.com") {
       return;
     }
