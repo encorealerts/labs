@@ -1,8 +1,8 @@
 #!/bin/bash
  
 # Invoke the Forever module (to START our Node.js server).
-PORT=3456 \
-ENV=staging \
+PORT=3457 \
+ENV=production \
 ./node_modules/forever/bin/forever \
 start \
 --minUptime 1 \

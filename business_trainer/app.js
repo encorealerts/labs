@@ -43,23 +43,24 @@ app.get('/', function (req, res) {
   res.render('index');
 });
 
-var queryArr = [];
-queryArr.push('SELECT *');
-queryArr.push('FROM activities, (');
-queryArr.push('    SELECT id AS sid');
-queryArr.push('    FROM activities AS acs');
-queryArr.push('    ORDER BY RAND( )');
-queryArr.push('    LIMIT :limit');
-queryArr.push(' ) tmp');
-queryArr.push('WHERE activities.id = tmp.sid');
-queryArr.push('  AND activities.in_reply_to_native_id is NULL;');
+var activitiesQuery = [];
+activitiesQuery.push('SELECT r1.*');
+activitiesQuery.push(' FROM activities AS r1 JOIN');
+activitiesQuery.push('      (SELECT (RAND() *');
+activitiesQuery.push('                    (SELECT MAX(id)');
+activitiesQuery.push('                       FROM activities)) AS id)');
+activitiesQuery.push('       AS r2');
+activitiesQuery.push('WHERE r1.id >= r2.id');
+activitiesQuery.push('    AND r1.verb = \'post\'');
+activitiesQuery.push('    AND r1.source = \'twitter\'');
+activitiesQuery.push('ORDER BY r1.id ASC');
+activitiesQuery.push('LIMIT 100; ');
 
 app.get('/alerts', function (req, res) {
-  var limit = (parseInt(req.query.limit || 10) * 1.1).toFixed(0), 
-    query = queryArr.join('\r').replace(':limit', limit);
-  connection.query(query, function (err, rows, fields) {
+  var limit = parseInt(req.query.limit) || 10;
+  connection.query(activitiesQuery.join('\r').replace(':limit', limit), function (err, activities) {
     if (err) throw err;
-    res.json({activities: rows})
+    res.json({activities: activities});
   });
 });
 
