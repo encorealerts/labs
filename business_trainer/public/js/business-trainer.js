@@ -83,8 +83,6 @@ $(function () {
     });
 
     frame.on('load', function(e) {
-      console.log("Load")
-      console.log(this)
       this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
     });
 
@@ -117,8 +115,8 @@ $(function () {
     }
   });
 
-  $(document).on('keypress', function (e) {
-    var code = e.keyCode > 0 ? e.keyCode : e.which;
+  $(document).on('keydown', function (e) {
+    var code = e.which ? e.which : e.keyCode;
     if (blocked || possibleKeys.indexOf(code) === -1) {
       return;
     }
