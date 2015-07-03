@@ -15,6 +15,7 @@ var
   mime          = require('mime'),
   fs            = require('fs'),
   app           = express(),
+  exec          = require('child_process').exec,
   oneYear       = 31556908800,
   walk          = rootRequire('others/walk'),
   mysql         = require('mysql'),
@@ -39,8 +40,19 @@ connection.connect(function (error) {
   console.log('MySQL Connected');
 });
 
+function getTrainedAmount(callback) {
+  exec("wc -l ./result.csv", function (error, stdout, stderr) {
+    if (stderr) {
+      return callback(0);
+    }
+    callback(parseInt(stdout.match(/^\d+/)[0]));
+  });
+}
+
 app.get('/', function (req, res) {
-  res.render('index');
+  getTrainedAmount(function (count) {
+    res.render('index', {count: count});
+  });
 });
 
 var activitiesQuery = [];
@@ -69,7 +81,10 @@ app.post('/save', function (req, res) {
     row = nativeId + ',' + action + '\n';
   fs.appendFile('result.csv', row, function (err) {
     res.writeHead(201);
-    res.end();
+    getTrainedAmount(function (count) {
+      res.write(JSON.stringify({ count: count }));
+      res.end();
+    });
   });
 });
 

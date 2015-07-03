@@ -20,15 +20,18 @@ $(function () {
     },
     possibleKeys = Object.keys(Keys).map(function (k) {return Keys[k] }).reduce(function(a, b) {
       return a.concat ? a.concat(b) : b;
-    }, []);
+    }, []),
+    $trainedCount = $('#trained-count'),
+    $blocker = $('#blocker'),
+    $tweetPlaceholder = $('#tweet-placeholder');
 
   function block() {
-    $('#blocker').show();
+    $blocker.show();
     blocked = true;
   }
 
   function release() {
-    $('#blocker').hide();
+    $blocker.hide();
     blocked = false;
   }
 
@@ -86,7 +89,7 @@ $(function () {
       this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
     });
 
-    $('#tweet-placeholder').empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
+    $tweetPlaceholder.empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
   }
 
   function postAction(action) {
@@ -94,11 +97,15 @@ $(function () {
     $.ajax({
       type: 'POST',
       url: '/save',
+      dataType:'json',
       data: {
-        nativeId: $('#tweet-placeholder').attr('data-native-id'),
+        nativeId: $tweetPlaceholder.attr('data-native-id'),
         action: action
       },
-      success: function (){
+      success: function (data) {
+        if (data && data.count) {
+          $trainedCount.text(data.count);
+        }
         release();
       }
     });
@@ -142,7 +149,7 @@ $(function () {
     
     if (oe.data.height && oe.data.element.match(/^tweet_/)) {
       $("#" + oe.data.element).css({height: (parseInt(oe.data.height) + 12) + "px", opacity: 1})
-      $('#tweet-placeholder').removeClass('loading');
+      $tweetPlaceholder.removeClass('loading');
     }
   });
 });

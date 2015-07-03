@@ -1,9 +1,14 @@
 
+html {
+  position: relative;
+  height: 100%;
+}
 body {
   margin:0;
-  font-family: 'Roboto Slab', serif;
+  font-family: 'Roboto', serif;
   background: url('/images/bg.jpg') no-repeat center;
   background-size: cover;
+  -webkit-font-smoothing: antialiased;
 }
 
 *, *:after, *:before{
@@ -108,16 +113,63 @@ h2 {padding-bottom: 12px;}
 }
 
 #header {
-  height: 60px;
-  background-color: #ef6c00;
+  height: 72px;
+  background-color: #212121;
   padding:0 24px;
   box-shadow:2px 2px 4px rgba(0,0,0,.3);
 }
-#header h1{
-  color:#fff;
-  font-weight: 400;
-  line-height: 60px;
+#header-top{
+  background: url('/images/encore.svg') no-repeat 12px center;
+  background-size: auto 40%;
+  padding-left: 72px;
+  display: inline-block;;
 }
+#header-top h1{
+  color:#fff;
+  line-height: 72px;
+  font-weight: 300;
+  font-size:24px;
+  position: relative;
+}
+#header h1::before{
+  content:'';
+  position: absolute;
+  left:-16px;
+  top:calc(50% - 6px);
+  border-width: 6px 0 6px 6px;
+  border-color: transparent transparent transparent #fff;
+  border-style:solid;
+}
+#header h1::after{
+  content:'';
+  position: absolute;
+  left:-20px;
+  top:calc(50% - 12px);
+  border-width: 12px 0 12px 6px;
+  border-color: transparent transparent transparent #212121 ;
+  border-style:solid;
+}
+
+#header-status {
+  float:right;
+}
+#header-status span{
+  line-height: 72px;
+  color:#fff;
+  font-weight: 300;
+}
+.status-value {
+  margin-left: 6px;
+  display: inline-block;
+  padding: 4px;
+  color:#000;
+  background-color: #fff;
+  border-radius: 2px;
+  font-weight: 300;
+  font-style: normal;
+}
+
+
 #page-wrapper{
   padding: 24px;
 }
@@ -163,7 +215,7 @@ h2 {padding-bottom: 12px;}
 #actions-wrapper button.red{ background-color: #d32f2f; background-image: url('/images/bottom.svg'); }
 #actions-wrapper button.blue{ background-color: #1e88e5; background-image: url('/images/up.svg'); }
 #actions-wrapper button.green{ background-color: #4caf50; background-image: url('/images/left.svg'); }
-#actions-wrapper button.yellow { background-color: #f9a825; background-image: url('/images/s-key.svg');  background-size: auto 60%;}
+#actions-wrapper button.yellow { background-color: #4527A0; background-image: url('/images/s-key.svg');  background-size: auto 60%;}
 #actions-wrapper button.grey{ background-color: #6b6b6b; background-image: url('/images/right.svg'); }
 
 
