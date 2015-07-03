@@ -34,7 +34,12 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 
-var connection = mysql.createConnection({ host: config.db.host, user: config.db.user, password: config.db.pw, database: config.db.database });
+var connection = mysql.createConnection({ 
+  host: config.db.host, 
+  user: config.db.user, 
+  password: config.db.pw, 
+  database: config.db.database,
+  supportBigNumbers: true });
 connection.connect(function (error) {
   if (error) { throw error; }
   console.log('MySQL Connected');
@@ -56,12 +61,15 @@ app.get('/', function (req, res) {
 });
 
 var activitiesQuery = [];
-activitiesQuery.push('SELECT r1.*');
+activitiesQuery.push('SELECT r1.* ');
 activitiesQuery.push(' FROM activities AS r1 JOIN');
-activitiesQuery.push('      (SELECT (RAND() *');
-activitiesQuery.push('                    (SELECT MAX(id)');
-activitiesQuery.push('                       FROM activities)) AS id)');
-activitiesQuery.push('       AS r2');
+activitiesQuery.push('    (SELECT ');
+activitiesQuery.push('      (');
+activitiesQuery.push('        (SELECT MIN(id) FROM activities) + ');
+activitiesQuery.push('        RAND() *');
+activitiesQuery.push('        (SELECT (SELECT MAX(id) FROM activities) - (SELECT MIN(id) FROM activities))');
+activitiesQuery.push('      ) AS id)');
+activitiesQuery.push('    AS r2');
 activitiesQuery.push('WHERE r1.id >= r2.id');
 activitiesQuery.push('    AND r1.verb = \'post\'');
 activitiesQuery.push('    AND r1.source = \'twitter\'');

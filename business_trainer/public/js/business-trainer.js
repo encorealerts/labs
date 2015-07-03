@@ -44,6 +44,7 @@ $(function () {
     if (!async) { block(); }
     $.ajax({
       type: "GET",
+      cache: false,
       url: '/alerts', 
       data: {limit: LIMIT}, 
       async: async,
