@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!--[if IE 9]>
+-      <meta http-equiv="X-UA-Compatible" content="IE=9" >
+    <![endif]-->
+    
+    <title>Encore Trainers</title>
+    
+    <!--<link rel="icon" href="/favicon.ico" type="image/x-icon">-->
+    
+    <link href='http://fonts.googleapis.com/css?family=Roboto:500,100,300,700,400' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
+    <link type="text/css" href="/css/trainer.css" rel="stylesheet" />
+
+    <script src="/js/jquery-2.1.4.min.js" /></script>
+    <script src="/js/trainer.js" /></script>
+
+  </head>
+  <body>
+    <div id="blocker">
+      <p>Loading<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>
+    </div>
+
+    <header id="header">
+      <section id="header-top">
+        <h1>
+          <span class="separator"></span>
+          <a href="/trainers/">Trainers</a>
+          <%- title ? ('<span class="separator"></span><span>' + title + '</span>') : ''%>
+        </h1>
+      </section>
+      <section id="header-status" style="display:none;">
+        <span>Trained:</span><var class="status-value"></var>
+      </section>
+    </header>
+
+    <div id="page-wrapper">
+      <%- body %>
+    </div>
+  </body>
+</html>

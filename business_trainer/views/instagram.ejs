@@ -1,0 +1,20 @@
+<% layout('layout.ejs') %>
+
+<div id="activity-wrapper">
+  <h2>Instagram Post</h2>
+  <div id="placeholder"></div>
+  <!-- activity here -->
+</div>
+<div id="actions-wrapper">
+  <h2>Actions</h2>
+  <button class="green key-up" data-action="market">Ham</button>
+  <button class="red key-down" data-action="bot">Spam</button>
+  <button class="grey key-right" id="next">I dunno...</button>
+</div>
+
+<script src="/js/instagram.js" /></script>
+<script type="text/javascript">
+  $(function () {
+    $('#header-status .status-value').text('<%= count %>');
+  });
+</script>

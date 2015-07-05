@@ -1,0 +1,23 @@
+<% layout('layout.ejs') %>
+
+
+<div id="activity-wrapper">
+  <h2>Tweet</h2>
+  <div id="placeholder"></div>
+  <!-- activity here -->
+</div>
+<div id="actions-wrapper">
+  <h2>Actions</h2>
+  <button class="blue key-up" data-action="business">Business</button>
+  <button class="red key-down" data-action="bot" >Bot</button>
+  <button class="green key-left" data-action="market">Person</button>
+  <button class="yellow key-s" data-action="spam">SPAM</button>
+  <button class="grey key-right" id="next">I give up... NEXT PLEASE!!</button>
+</div>
+
+<script src="/js/twitter-actor.js" /></script>
+<script type="text/javascript">
+  $(function () {
+    $('#header-status .status-value').text('<%= count %>');
+  });
+</script>

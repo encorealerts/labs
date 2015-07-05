@@ -1,9 +1,10 @@
+
 $(function () {
 
-  var activities = [], 
+  Blocker.block();
+
+  var 
     LIMIT = 100, 
-    NEW_REQUEST_THRESHOLD = (LIMIT / 10) * 2,
-    blocked = false;
     Actions = {
       BUSINESS: 'business',
       BOT: 'bot',
@@ -21,61 +22,13 @@ $(function () {
     possibleKeys = Object.keys(Keys).map(function (k) {return Keys[k] }).reduce(function(a, b) {
       return a.concat ? a.concat(b) : b;
     }, []),
-    $trainedCount = $('#trained-count'),
-    $blocker = $('#blocker'),
-    $tweetPlaceholder = $('#tweet-placeholder');
+    $trainedCount = $('#header-status .status-value'),
+    $placeholder = $('#placeholder');
 
-  function block() {
-    $blocker.show();
-    blocked = true;
-  }
-
-  function release() {
-    $blocker.hide();
-    blocked = false;
-  }
-
-  block();
-
-  function requestActivities(polyArg) {
-    var thisActivities, 
-      callback = (typeof polyArg == 'function') ? polyArg : null, 
-      async = (typeof polyArg == 'boolean') ? polyArg : true;
-    if (!async) { block(); }
-    $.ajax({
-      type: "GET",
-      cache: false,
-      url: '/alerts', 
-      data: {limit: LIMIT}, 
-      async: async,
-      success: function (response) {
-        if (!async) {
-          thisActivities = response.activities;
-        } else if (callback) {
-          callback(response.activities);
-        }
-      }
-    });
-    if (!async) { release(); }
-    return thisActivities;
-  }
-
-  function getActivity() {
-
-    if (activities.length === 0) {
-      activities = activities.concat(requestActivities(false));
-    }
-
-    if (activities.length <= NEW_REQUEST_THRESHOLD){
-      requestActivities(function (_activities) {
-        activities = activities.concat(_activities);
-      });
-    }
-    return activities.splice(0,1)[0];
-  }
+  $('#header-status').show();
 
   function embedActivity() {
-    var activity = getActivity();
+    var activity = Requester.getActivity('twitter', LIMIT);
     var frame = $('<iframe></iframe>').attr({
       src: 'http://twitframe.com/show?url=' + encodeURIComponent(activity.link.replace('https://','http://')),
       width: 500,
@@ -90,26 +43,7 @@ $(function () {
       this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
     });
 
-    $tweetPlaceholder.empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
-  }
-
-  function postAction(action) {
-    block();
-    $.ajax({
-      type: 'POST',
-      url: '/save',
-      dataType:'json',
-      data: {
-        nativeId: $tweetPlaceholder.attr('data-native-id'),
-        action: action
-      },
-      success: function (data) {
-        if (data && data.count) {
-          $trainedCount.text(data.count);
-        }
-        release();
-      }
-    });
+    $placeholder.empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
   }
 
   /* bindings */
@@ -123,9 +57,17 @@ $(function () {
     }
   });
 
+  function postAction(action) {
+    Requester.postAction($placeholder.attr('data-native-id'), 'twitter', action, function (data) {
+      if (data && data.count) {
+        $trainedCount.text(data.count);
+      }
+    });
+  }
+
   $(document).on('keydown', function (e) {
     var code = e.which ? e.which : e.keyCode;
-    if (blocked || possibleKeys.indexOf(code) === -1) {
+    if (Blocker.blocked || possibleKeys.indexOf(code) === -1) {
       return;
     }
     e.preventDefault();
@@ -150,7 +92,7 @@ $(function () {
     
     if (oe.data.height && oe.data.element.match(/^tweet_/)) {
       $("#" + oe.data.element).css({height: (parseInt(oe.data.height) + 12) + "px", opacity: 1})
-      $tweetPlaceholder.removeClass('loading');
+      $placeholder.removeClass('loading');
     }
   });
 });

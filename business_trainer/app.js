@@ -19,7 +19,12 @@ var
   oneYear       = 31556908800,
   walk          = rootRequire('others/walk'),
   mysql         = require('mysql'),
-  config        = rootRequire(global.__ENVIRONMENT);
+  config        = rootRequire(global.__ENVIRONMENT),
+  queries       = rootRequire('others/queries'),
+  files         = {
+    TWITTER_ACTOR: 'twitter-actor.csv',
+    INSTAGRAM: 'instagram.csv'
+  };
 
 app.engine('ejs', engine);
 app.set('views', __dirname + '/views');
@@ -45,51 +50,48 @@ connection.connect(function (error) {
   console.log('MySQL Connected');
 });
 
-function getTrainedAmount(callback) {
-  exec("wc -l ./result.csv", function (error, stdout, stderr) {
-    if (stderr) {
-      return callback(0);
-    }
+function getTrainedAmount(file, callback) {
+  exec("wc -l ./" + file, function (error, stdout, stderr) {
+    if (stderr) { return callback(0); }
     callback(parseInt(stdout.match(/^\d+/)[0]));
   });
 }
 
 app.get('/', function (req, res) {
-  getTrainedAmount(function (count) {
-    res.render('index', {count: count});
+  res.redirect('/trainers');
+});
+
+app.get('/trainers', function (req, res) {
+  res.render('index', {title: null});
+});
+
+app.get('/trainers/twitter-actor', function (req, res) {
+  getTrainedAmount(files.TWITTER_ACTOR, function (count) {
+    res.render('twitter_actor', {title: 'Twitter Actor', count: count});
   });
 });
 
-var activitiesQuery = [];
-activitiesQuery.push('SELECT r1.* ');
-activitiesQuery.push(' FROM activities AS r1 JOIN');
-activitiesQuery.push('    (SELECT ');
-activitiesQuery.push('      (');
-activitiesQuery.push('        (SELECT MIN(id) FROM activities) + ');
-activitiesQuery.push('        RAND() *');
-activitiesQuery.push('        (SELECT (SELECT MAX(id) FROM activities) - (SELECT MIN(id) FROM activities))');
-activitiesQuery.push('      ) AS id)');
-activitiesQuery.push('    AS r2');
-activitiesQuery.push('WHERE r1.id >= r2.id');
-activitiesQuery.push('    AND r1.verb = \'post\'');
-activitiesQuery.push('    AND r1.source = \'twitter\'');
-activitiesQuery.push('ORDER BY r1.id ASC');
-activitiesQuery.push('LIMIT 100; ');
+app.get('/trainers/instagram', function (req, res) {
+  getTrainedAmount(files.INSTAGRAM, function (count) {
+    res.render('instagram', {title: 'Instagram', count: count});
+  });
+});
 
-app.get('/alerts', function (req, res) {
-  var limit = parseInt(req.query.limit) || 10;
-  connection.query(activitiesQuery.join('\r').replace(':limit', limit), function (err, activities) {
+app.get('/trainers/activities', function (req, res) {
+  var limit = parseInt(req.query.limit) || 10, source = req.query.source;
+  connection.query(queries.getActivities(source, limit), function (err, activities) {
     if (err) throw err;
     res.json({activities: activities});
   });
 });
 
-app.post('/save', function (req, res) {
+app.post('/trainers/save', function (req, res) {
   var action = req.body.action, nativeId = req.body.nativeId, 
-    row = nativeId + ',' + action + '\n';
-  fs.appendFile('result.csv', row, function (err) {
+    row = nativeId + ',' + action + '\n',
+    file = files[req.body.source === 'instagram' ? 'INSTAGRAM' : 'TWITTER_ACTOR'];
+  fs.appendFile(file, row, function (err) {
     res.writeHead(201);
-    getTrainedAmount(function (count) {
+    getTrainedAmount(file, function (count) {
       res.write(JSON.stringify({ count: count }));
       res.end();
     });

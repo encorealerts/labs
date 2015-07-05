@@ -1,48 +1,13 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!--[if IE 9]>
--      <meta http-equiv="X-UA-Compatible" content="IE=9" >
-    <![endif]-->
-    
-    <title>Actor Classification Trainer</title>
-    
-    <!--<link rel="icon" href="/favicon.ico" type="image/x-icon">-->
-    
-    <link href='http://fonts.googleapis.com/css?family=Roboto:500,100,300,700,400' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400' rel='stylesheet' type='text/css'>
-    <link type="text/css" href="/css/business-trainer.css" rel="stylesheet" />
-
-  </head>
-  <body>
-    <div id="blocker">
-      <p>Loading<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>
-    </div>
-    <header id="header">
-      <section id="header-top">
-        <h1>Actor Classification Trainer</h1>
-      </section>
-      <section id="header-status">
-        <span>Trained:</span><var class="status-value" id="trained-count"><%= count %></var>
-      </section>
-    </header>
-    <div id="page-wrapper">
-      <div id="activity-wrapper">
-        <h2>Tweet</h2>
-        <div id="tweet-placeholder"></div>
-        <!-- activity here -->
-      </div>
-      <div id="actions-wrapper">
-        <h2>Actions</h2>
-        <button class="blue" data-action="business">Business</button>
-        <button class="red" data-action="bot" >Bot</button>
-        <button class="green" data-action="market">Person</button>
-        <button class="yellow" data-action="spam">SPAM</button>
-        <button class="grey" id="next">I give up... NEXT PLEASE!!</button>
-      </div>
-    </div>
-    <script src="/js/jquery-2.1.4.min.js" /></script>
-    <script src="/js/business-trainer.js" /></script>
-  </body>
-</html>
+<% layout('layout.ejs') %>
+<ul>
+  <li>
+    <h2>
+      <a href="/trainers/twitter-actor">Twitter Actor</a>
+    </h2>
+  </li>
+  <li>
+    <h2>
+      <a href="/trainers/instagram">Instagram</a>
+    </h2>
+  </li>
+</ul>
