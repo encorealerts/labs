@@ -52,6 +52,7 @@ module.exports = (function () {
   instagramQuery.push('    AND ar.activity_id >= random.id');
   instagramQuery.push('  ORDER BY ar.activity_id DESC');
   instagramQuery.push(')');
+  instagramQuery.push('ORDER BY RAND()');
   instagramQuery.push('LIMIT :limit;');
 
   return {
