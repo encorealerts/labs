@@ -197,7 +197,7 @@ h2 {padding-bottom: 12px;}
   display: inline-block;
   vertical-align: top;
 }
-#tweet-placeholder {
+#placeholder {
   background-color: #fff;
   border-radius: 2px;
   position: relative;
@@ -215,7 +215,7 @@ h2 {padding-bottom: 12px;}
     padding-top: 24px;
   }
 }
-#tweet-placeholder > iframe {
+#placeholder > iframe {
   transition: opacity 1s;
 }
 button,
