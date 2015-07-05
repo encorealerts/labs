@@ -16,28 +16,10 @@ module.exports = (function () {
   twitterQuery.push('LIMIT :limit; ');
 
   var instagramQuery = [];
-  // instagramQuery.push('SELECT a.*');
-  // instagramQuery.push('FROM rules');
-  // instagramQuery.push('JOIN activities_rules AS ar');
-  // instagramQuery.push('  ON ar.rule_id = rules.id');
-  // instagramQuery.push('JOIN activities AS a');
-  // instagramQuery.push('  ON a.id = ar.activity_id');
-  // instagramQuery.push('JOIN (SELECT ');
-  // instagramQuery.push('    (');
-  // instagramQuery.push('      (SELECT MIN(id) FROM activities) + ');
-  // instagramQuery.push('      RAND() *');
-  // instagramQuery.push('      (SELECT (SELECT MAX(id) FROM activities) - (SELECT MIN(id) FROM activities))');
-  // instagramQuery.push('    ) AS id');
-  // instagramQuery.push('  ) AS random');
-  // instagramQuery.push('WHERE rules.source = \'instagram\'');
-  // instagramQuery.push('  AND a.id >= random.id');
-  // instagramQuery.push('ORDER BY a.id DESC');
-  // instagramQuery.push('LIMIT 100;');
-
-  instagramQuery.push('SELECT a.*');
-  instagramQuery.push('FROM activities AS a');
-  instagramQuery.push('WHERE a.id IN (');
-  instagramQuery.push('  SELECT ar.activity_id');
+  instagramQuery.push('SELECT a.* FROM');
+  instagramQuery.push('activities AS a');
+  instagramQuery.push('JOIN (');
+  instagramQuery.push('  SELECT ar.activity_id AS id');
   instagramQuery.push('  FROM rules');
   instagramQuery.push('  JOIN activities_rules AS ar');
   instagramQuery.push('    ON ar.rule_id = rules.id');
@@ -51,9 +33,10 @@ module.exports = (function () {
   instagramQuery.push('  WHERE rules.source = \'instagram\'');
   instagramQuery.push('    AND ar.activity_id >= random.id');
   instagramQuery.push('  ORDER BY ar.activity_id DESC');
-  instagramQuery.push(')');
-  instagramQuery.push('ORDER BY RAND()');
-  instagramQuery.push('LIMIT :limit;');
+  instagramQuery.push('  LIMIT 100');
+  instagramQuery.push(') AS ids');
+  instagramQuery.push('WHERE a.id = ids.id');
+  instagramQuery.push('LIMIT 100;');
 
   return {
     getActivities: function (source, limit) {
