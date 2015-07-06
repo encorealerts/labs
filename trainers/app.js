@@ -5,6 +5,8 @@ global.rootRequire = function(name) {
 global.__ROOT_PATH = __dirname;
 global.__ENVIRONMENT = process.env.ENV || 'development';
 
+rootRequire('others/prototypeExtends');
+
 var 
   express       = require('express'),
   engine        = require('ejs-locals'),
@@ -51,10 +53,17 @@ connection.connect(function (error) {
 });
 
 function getTrainedAmount(file, callback) {
-  exec("wc -l ./" + file, function (error, stdout, stderr) {
+  var base = file.replace(/.\d+$/,''), r;
+  exec("wc -l ./" + base + '*', function (error, stdout, stderr) {
     if (stderr) { return callback(0); }
-    callback(parseInt(stdout.match(/^\d+/)[0]));
+    r = stdout.split('\n').filter(function (v) { return !!v });
+    callback(parseInt(r[r.length - 1].match(/\d+/)[0]));
   });
+}
+
+function getFileName(source) {
+  var d = new Date(), datespan = d.getFullYear() + d.getMonth().toString().padLeft(2, '0') + d.getDate().toString().padLeft(2, '0');
+  return files[source === 'instagram' ? 'INSTAGRAM' : 'TWITTER_ACTOR'] + '.' + datespan;
 }
 
 app.get('/', function (req, res) {
@@ -65,15 +74,15 @@ app.get('/trainers', function (req, res) {
   res.render('index', {title: null});
 });
 
-app.get('/trainers/twitter-actor', function (req, res) {
+app.get('/trainers/twitter-actor-classification', function (req, res) {
   getTrainedAmount(files.TWITTER_ACTOR, function (count) {
-    res.render('twitter_actor', {title: 'Twitter Actor', count: count});
+    res.render('twitter_actor_classification', {title: 'Twitter Actor Classification', count: count});
   });
 });
 
-app.get('/trainers/instagram', function (req, res) {
+app.get('/trainers/instagram-spam', function (req, res) {
   getTrainedAmount(files.INSTAGRAM, function (count) {
-    res.render('instagram', {title: 'Instagram', count: count});
+    res.render('instagram_spam', {title: 'Instagram Spam', count: count});
   });
 });
 
@@ -88,7 +97,7 @@ app.get('/trainers/activities', function (req, res) {
 app.post('/trainers/save', function (req, res) {
   var action = req.body.action, nativeId = req.body.nativeId, 
     row = nativeId + ',' + action + '\n',
-    file = files[req.body.source === 'instagram' ? 'INSTAGRAM' : 'TWITTER_ACTOR'];
+    file = getFileName(req.body.source);
   fs.appendFile(file, row, function (err) {
     res.writeHead(201);
     getTrainedAmount(file, function (count) {

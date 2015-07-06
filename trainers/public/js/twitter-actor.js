@@ -6,14 +6,18 @@ $(function () {
   var 
     LIMIT = 100, 
     Actions = {
-      HAM: 'ham',
+      BUSINESS: 'business',
+      BOT: 'bot',
+      PERSONAL: 'personal',
       SPAM: 'spam'
     },
     possibleActions = Object.keys(Actions).map(function (k) {return Actions[k]}),
     Keys = {
+      LEFT: 37,
       UP: 38,
       RIGHT: 39,
-      BOTTOM: 40
+      BOTTOM: 40,
+      S: [115, 83]
     },
     possibleKeys = Object.keys(Keys).map(function (k) {return Keys[k] }).reduce(function(a, b) {
       return a.concat ? a.concat(b) : b;
@@ -24,24 +28,33 @@ $(function () {
   $('#header-status').show();
 
   function embedActivity() {
-    var activity = Requester.getActivity('instagram', LIMIT);
+    var activity = Requester.getActivity('twitter', LIMIT);
     var frame = $('<iframe></iframe>').attr({
-      src: activity.link.replace('http://','https://') + 'embed',
-      //src: 'https://instagram.com/p/4ushproS3T/embed',
+      src: 'http://twitframe.com/show?url=' + encodeURIComponent(activity.link.replace('https://','http://')),
       width: 500,
       height: 300,
       frameBorder: 0,
       seamless: true,
       style: 'opacity:0',
-      id: 'post_' + activity.native_id
+      id: 'tweet_' + activity.native_id
+    });
+
+    frame.on('load', function(e) {
+      this.contentWindow.postMessage({ element: this.id, query: "height" }, "http://twitframe.com");
     });
 
     $placeholder.empty().append(frame).attr('data-native-id', activity.native_id).addClass('loading');
   }
 
-  /* bindings */
-  $('#next').on('click', embedActivity);
+  function postAction(action) {
+    Requester.postAction($placeholder.attr('data-native-id'), 'twitter', action, function (data) {
+      if (data && data.count) {
+        $trainedCount.text(data.count);
+      }
+    });
+  }
 
+  /* bindings */
   $('[data-action]').on('click', function () {
     var action = $(this).attr('data-action');
     if (possibleActions.indexOf(action) > -1) {
@@ -50,14 +63,6 @@ $(function () {
     }
   });
 
-  function postAction(action) {
-    Requester.postAction($placeholder.attr('data-native-id'), 'instagram', action, function (data) {
-      if (data && data.count) {
-        $trainedCount.text(data.count);
-      }
-    });
-  }
-
   $(document).on('keydown', function (e) {
     var code = e.which ? e.which : e.keyCode;
     if (Blocker.blocked || possibleKeys.indexOf(code) === -1) {
@@ -65,6 +70,7 @@ $(function () {
     }
     e.preventDefault();
     switch (code) {
+      case Keys.RIGHT: embedActivity(); break;
       case Keys.LEFT: postAction(Actions.PERSONAL); break;
       case Keys.UP: postAction(Actions.BUSINESS); break;
       case Keys.BOTTOM: postAction(Actions.BOT); break;
@@ -76,14 +82,15 @@ $(function () {
 
   embedActivity();
 
+  /* listen for the return message once the tweet has been loaded */
   $(window).bind("message", function(e) {
-    var oe = e.originalEvent, data;
-
-    if (oe.origin !== "http://instagram.com" && oe.origin !== "https://instagram.com") { return; }
-
-    data = JSON.parse(oe.data);
-    if (data.type === 'MEASURE') {
-      $("#placeholder iframe").css({height: data.details.height + 12 + "px", opacity: 1})
+    var oe = e.originalEvent;
+    if (oe.origin != "http://twitframe.com" && oe.origin != "https://twitframe.com") {
+      return;
+    }
+    
+    if (oe.data.height && oe.data.element.match(/^tweet_/)) {
+      $("#" + oe.data.element).css({height: (parseInt(oe.data.height) + 12) + "px", opacity: 1})
       $placeholder.removeClass('loading');
     }
   });
