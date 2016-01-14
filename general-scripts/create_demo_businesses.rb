@@ -12,7 +12,7 @@ UrlAlert.skip_callback(:validate, :before, :prepare)
 
 Alert.skip_callback(:commit, :after, :send_email_alert)
 HashtagAlert.skip_callback(:commit, :after, :send_email_alert)
-UrlTopicAlert.skip_callback(:commit, :after, :send_email_alert)
+UrlAlert.skip_callback(:commit, :after, :send_email_alert)
 PopularTopicAlert.skip_callback(:commit, :after, :send_email_alert)
 PredictivePostAlert.skip_callback(:commit, :after, :send_email_alert)
 InfluencerAlert.skip_callback(:commit, :after, :send_email_alert)
@@ -20,7 +20,7 @@ DirectAlert.skip_callback(:commit, :after, :send_email_alert)
 
 Alert.skip_callback(:commit, :after, :send_outlier_volume)
 HashtagAlert.skip_callback(:commit, :after, :send_outlier_volume)
-UrlTopicAlert.skip_callback(:commit, :after, :send_outlier_volume)
+UrlAlert.skip_callback(:commit, :after, :send_outlier_volume)
 PopularTopicAlert.skip_callback(:commit, :after, :send_outlier_volume)
 PredictivePostAlert.skip_callback(:commit, :after, :send_outlier_volume)
 InfluencerAlert.skip_callback(:commit, :after, :send_outlier_volume)
@@ -28,11 +28,17 @@ DirectAlert.skip_callback(:commit, :after, :send_outlier_volume)
 
 Alert.skip_callback(:commit, :after, :send_limit_reached)
 HashtagAlert.skip_callback(:commit, :after, :send_limit_reached)
-UrlTopicAlert.skip_callback(:commit, :after, :send_limit_reached)
+UrlAlert.skip_callback(:commit, :after, :send_limit_reached)
 PopularTopicAlert.skip_callback(:commit, :after, :send_limit_reached)
 PredictivePostAlert.skip_callback(:commit, :after, :send_limit_reached)
 InfluencerAlert.skip_callback(:commit, :after, :send_limit_reached)
-DirectAlert.skip_callback(:commit, :after, :send_limit_reached)
+
+Alert.skip_callback(:commit, :after, :deliver!)
+HashtagAlert.skip_callback(:commit, :after, :deliver!)
+UrlAlert.skip_callback(:commit, :after, :deliver!)
+PopularTopicAlert.skip_callback(:commit, :after, :deliver!)
+PredictivePostAlert.skip_callback(:commit, :after, :deliver!)
+InfluencerAlert.skip_callback(:commit, :after, :deliver!)
 
 TwitterRule.skip_callback(:validate, :before, :set_provider_value)
 TwitterRule.skip_callback(:create, :after, :configure_influencers)
@@ -51,7 +57,6 @@ Handle.skip_callback(:validate, :after, :create_mention_rule)
 Handle.skip_callback(:validate, :after, :create_from_rule)
 
 [{from: 320, to: 540}, {from: 416, to: 541}, {from: 427, to: 542}, {from: 196, to: 543}, {from: 7, to: 544}, {from: 21, to: 545}].each do |migrate|
-#[{from: 411, to: 416}].each do |migrate|
   business  = Business.find(migrate[:from])
   to        = Business.find(migrate[:to])
 
@@ -69,7 +74,7 @@ Handle.skip_callback(:validate, :after, :create_from_rule)
     )
     new_r.save(validate: false)
 
-    rule.alerts.where('created_at > ?', 2.months.ago).each do |a|
+    rule.alerts.where('created_at > ?', 2.months.ago).where(delivered: true).where(hidden: false).each do |a|
       new_a = Alert.new(
         business_id: to.id,
         options: a.options, 
@@ -78,7 +83,9 @@ Handle.skip_callback(:validate, :after, :create_from_rule)
         alert_type: a.alert_type,
         type: a.type,
         rule_id: new_r.id,
-        context: a.context
+        context: a.context,
+        delivered: a.delivered,
+        hidden: a.hidden
       )
       new_a.activities = a.activities
       new_a.save(validate: false)
